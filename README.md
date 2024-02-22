@@ -16,9 +16,9 @@ The Shopping List App is a simple Android application that allows users to creat
 - **Jetpack Compose**: Jetpack Compose is Android’s recommended modern toolkit for building native UI.
 
 ## Screenshots
-![ItemList](../screenshots/ShoppingList-screenshot1.png)
-![Item Form](../screenshots/ShoppingList-screenshot2.png)
-![Edit Item](../screenshots/ShoppingList-screenshot3.png)
+![ItemList](screenshots/ShoppingList-screenshot1.png)
+![Item Form](screenshots/ShoppingList-screenshot2.png)
+![Edit Item](screenshots/ShoppingList-screenshot3.png)
 
 ## Installation
 1. Clone the repository to your local machine.
