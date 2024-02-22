@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -57,8 +58,35 @@ fun ShoppingListApp() {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            items(shoppingListItem) {
-                ShoppingListItem(it, {}, {})
+            items(shoppingListItem) { eachItem ->
+                if (eachItem.isEditing) {
+                    ShoppingItemEditor(item = eachItem,
+                        onEditComplete = { savedString, savedQty ->
+                            val newList = shoppingListItem.map {
+                                if (it.id == eachItem.id) {
+                                    it.copy(
+                                        isEditing = false,
+                                        name = savedString,
+                                        quantity = savedQty
+                                    )
+                                } else {
+                                    it
+                                }
+                            }
+                            shoppingListItem = newList
+
+                        })
+                } else {
+                    ShoppingListItem(
+                        item = eachItem,
+                        onEditClick = {
+                            shoppingListItem =
+                                shoppingListItem.map { it.copy(isEditing = it.id == eachItem.id) }
+
+                        }, onDeleteClick = {
+                            shoppingListItem = shoppingListItem - eachItem
+                        })
+                }
             }
         }
         if (showDialog) {
@@ -139,7 +167,8 @@ fun ShoppingListItem(item: ShoppingItem, onEditClick: () -> Unit, onDeleteClick:
             .border(
                 border = BorderStroke(2.dp, Color.Gray),
                 shape = RoundedCornerShape(20)
-            )
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = item.name, modifier = Modifier.padding(8.dp))
         Text(text = "Qty: ${item.quantity}", modifier = Modifier.padding(8.dp))
@@ -147,9 +176,46 @@ fun ShoppingListItem(item: ShoppingItem, onEditClick: () -> Unit, onDeleteClick:
             IconButton(onClick = onEditClick) {
                 Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
             }
-            IconButton(onClick = onEditClick) {
+            IconButton(onClick = onDeleteClick) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
             }
+        }
+    }
+}
+
+@Composable
+fun ShoppingItemEditor(item: ShoppingItem, onEditComplete: (String, Int) -> Unit) {
+    var editorName by remember { mutableStateOf(item.name) }
+    var editorQuantity by remember { mutableStateOf(item.quantity.toString()) }
+    var isEditing by remember { mutableStateOf(item.isEditing) }
+
+    Row(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Column {
+            BasicTextField(
+                value = editorName,
+                onValueChange = { editorName = it },
+                singleLine = true,
+                modifier = Modifier
+                    .padding(8.dp)
+            )
+            BasicTextField(
+                value = editorQuantity,
+                onValueChange = { editorQuantity = it },
+                singleLine = true,
+                modifier = Modifier
+                    .padding(8.dp)
+            )
+        }
+        Button(onClick = {
+            isEditing = false
+            onEditComplete(editorName, editorQuantity.toIntOrNull() ?: 1)
+        }) {
+            Text(text = "save")
         }
     }
 }
